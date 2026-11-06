@@ -1,3 +1,10 @@
+# GitHub Actions: build Intel-only unsigned app, upload as artifact.
+# Put this file in .github/workflows/build-intel.yml in your fork, push, run it,
+# then download the artifact "RightClickAssistantPro-Intel" from the Actions run.
+# NOTE 2026-11-06: macos-14 was retired 2026-11-02, use macos-15 (arm64 runner,
+# still cross-compiles x86_64 via ARCHS=x86_64 below).
+# NOTE 2026-11-06: PRODUCT_NAME is "右键工具Pro", so the built app is
+# "右键工具Pro.app", NOT "RightClickAssistantPro.app".
 name: Build Intel
 on: [workflow_dispatch]
 jobs:
@@ -13,9 +20,13 @@ jobs:
             CODE_SIGNING_ALLOWED=NO build
       - name: Collect app
         run: |
-          APP=$(find ~/Library/Developer/Xcode/DerivedData -name "RightClickAssistantPro.app" -path "*Release*" | head -1)
+          APP=$(find ~/Library/Developer/Xcode/DerivedData -name "右键工具Pro.app" -path "*Release*" | head -1)
+          echo "Found app: $APP"
+          ls -lh "$APP"
           ditto -c -k --keepParent "$APP" RightClickAssistantPro-Intel.zip
+          ls -lh RightClickAssistantPro-Intel.zip
       - uses: actions/upload-artifact@v4
         with:
           name: RightClickAssistantPro-Intel
           path: RightClickAssistantPro-Intel.zip
+
