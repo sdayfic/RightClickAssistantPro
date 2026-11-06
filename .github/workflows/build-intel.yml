@@ -1,0 +1,21 @@
+name: Build Intel
+on: [workflow_dispatch]
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Intel Release (unsigned)
+        run: |
+          xcodebuild -project RightClickAssistantPro.xcodeproj -scheme RightClickAssistantPro \
+            -configuration Release -destination 'platform=macOS' \
+            ARCHS=x86_64 ONLY_ACTIVE_ARCH=NO MACOSX_DEPLOYMENT_TARGET=12.0 \
+            CODE_SIGNING_ALLOWED=NO build
+      - name: Collect app
+        run: |
+          APP=$(find ~/Library/Developer/Xcode/DerivedData -name "RightClickAssistantPro.app" -path "*Release*" | head -1)
+          ditto -c -k --keepParent "$APP" RightClickAssistantPro-Intel.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: RightClickAssistantPro-Intel
+          path: RightClickAssistantPro-Intel.zip
